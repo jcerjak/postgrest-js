@@ -1377,6 +1377,25 @@ test('insert w/ empty body has no columns param', async () => {
   expect((client as any).url.searchParams.has('columns')).toBeFalsy()
 })
 
+test('insert into nonexisting table returns error', async () => {
+  // NOTE: this test succeeds if you try to insert an empty object ({})
+  const res = await postgrest.from('nonexisting_table').insert({ foo: 1 })
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": null,
+      "error": Object {
+        "code": "42P01",
+        "details": null,
+        "hint": null,
+        "message": "relation \\"public.nonexisting_table\\" does not exist",
+      },
+      "status": 404,
+      "statusText": "Not Found",
+    }
+  `)
+})
+
 test('select with no match', async () => {
   const res = await postgrest.from('users').select().eq('username', 'missing')
   expect(res).toMatchInlineSnapshot(`
